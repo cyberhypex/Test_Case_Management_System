@@ -1,5 +1,8 @@
 package com.Test_Case_Management_System.Controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import com.Test_Case_Management_System.Model.Priority;
 import com.Test_Case_Management_System.Model.Status;
@@ -7,13 +10,12 @@ import com.Test_Case_Management_System.Model.TestModel;
 import com.Test_Case_Management_System.Repository.TestRepository;
 import com.Test_Case_Management_System.Service.TestService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
+import java.util.List;
 
 
 @RestController
@@ -46,20 +48,21 @@ public class TestController {
     }
 
     @GetMapping("/findAllTests")
-    public ResponseEntity<Page<TestModel>> getAllTests(
+    public ResponseEntity<List<TestModel>> getAllTests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
 
-        Pageable pageable = (Pageable) PageRequest.of(page, size, Sort.by(sort.split(",")));
-        Page<TestModel> allTests = testService.getAllTests(pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")));
+        Page<TestModel> pageResult = testService.getAllTests(pageable);
 
-        if (allTests.isEmpty()) {
+        if (pageResult.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(allTests);
+        return ResponseEntity.ok(pageResult.getContent());
     }
+
 
 
 

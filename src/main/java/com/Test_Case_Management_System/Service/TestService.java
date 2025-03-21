@@ -7,9 +7,11 @@ import com.Test_Case_Management_System.Model.TestModel;
 import com.Test_Case_Management_System.Repository.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;  // ✅ RIGHT
+
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +38,8 @@ public class TestService {
        return testRepository.findById(id);
     }
 
-    public Page<TestModel> getAllTests(Pageable pageable){
-        return (Page<TestModel>) testRepository.findAll();
+    public Page<TestModel> getAllTests(Pageable pageable) {
+        return testRepository.findAll(pageable);
     }
+
 }
