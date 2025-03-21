@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;  // ✅ RIGHT
 import org.springframework.stereotype.Service;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,25 @@ public class TestService {
 
     public Page<TestModel> getAllTests(Pageable pageable) {
         return testRepository.findAll(pageable);
+    }
+
+    public String deleteTest(String id){
+        testRepository.deleteById(id);
+        return "TestCase with id: "+id+" "+"deleted successfully";
+    }
+
+    public Optional<TestModel> updateTests(String id, TestModel testModel){
+        return testRepository.findById(id).map(existingTest->{
+            existingTest.setTitle(testModel.getTitle());
+            existingTest.setUpdatedAt(testModel.getUpdatedAt());
+            existingTest.setDescription(testModel.getDescription());
+            existingTest.setStatus(testModel.getStatus());
+            existingTest.setPriority(testModel.getPriority());
+            existingTest.setUpdatedAt(Instant.now());
+
+            return testRepository.save(existingTest);
+
+        });
     }
 
 }

@@ -64,6 +64,21 @@ public class TestController {
     }
 
 
+    @DeleteMapping("/deleteTestById/{id}")
+    public String deleteTestCaseById(@PathVariable String id){
+        return testService.deleteTest(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<TestModel> updateTest(@PathVariable String id,
+                                                @RequestBody TestModel updatedTest) {
+        return testService.updateTests(id, updatedTest)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+
 
 
 
