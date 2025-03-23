@@ -90,4 +90,8 @@ public class TestModel {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public String getId() {
+        return id;
+    }
 }

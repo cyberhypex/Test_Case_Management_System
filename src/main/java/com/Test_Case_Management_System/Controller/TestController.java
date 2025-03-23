@@ -1,89 +1,71 @@
 package com.Test_Case_Management_System.Controller;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
+import com.Test_Case_Management_System.DTO.TestCaseDTO;
 import com.Test_Case_Management_System.Model.Priority;
 import com.Test_Case_Management_System.Model.Status;
 import com.Test_Case_Management_System.Model.TestModel;
-import com.Test_Case_Management_System.Repository.TestRepository;
 import com.Test_Case_Management_System.Service.TestService;
-import org.springframework.data.domain.Page;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
 public class TestController {
 
+    private final TestService testService;
 
-    final private TestRepository testRepository;
-    final private TestService testService;
-
-    public TestController(TestRepository testRepository, TestService testService) {
-        this.testRepository = testRepository;
+    public TestController(TestService testService) {
         this.testService = testService;
     }
 
     @PostMapping("/create/{title}/{priority}/{status}")
-    public ResponseEntity<TestModel> createTest(@PathVariable String title,
-                                                @RequestParam(required = false) String description,
-                                                @PathVariable Priority priority,
-                                                @PathVariable Status status) {
-        TestModel testModel = testService.createTest(title, description, priority, status);
-        return ResponseEntity.status(HttpStatus.CREATED).body(testModel);
+    public ResponseEntity<TestCaseDTO> createTest(@PathVariable String title,
+                                                  @RequestParam(required = false) String description,
+                                                  @PathVariable Priority priority,
+                                                  @PathVariable Status status) {
+        TestCaseDTO testDTO = testService.createTest(title, description, priority, status);
+        return ResponseEntity.status(HttpStatus.CREATED).body(testDTO);
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<TestModel> getTestById(@PathVariable String id) {
-        return testService.getTestById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<TestCaseDTO> getTestById(@PathVariable String id) {
+        Optional<TestCaseDTO> testDTO = testService.getTestById(id);
+        return testDTO.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/findAllTests")
-    public ResponseEntity<List<TestModel>> getAllTests(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sort) {
-
+    public ResponseEntity<List<TestCaseDTO>> getAllTests(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                         @RequestParam(defaultValue = "createdAt,desc") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")));
-        Page<TestModel> pageResult = testService.getAllTests(pageable);
+        List<TestCaseDTO> allTests = testService.getAllTests(pageable);
 
-        if (pageResult.isEmpty()) {
+        if (allTests.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(pageResult.getContent());
+        return ResponseEntity.ok(allTests);
     }
 
-
     @DeleteMapping("/deleteTestById/{id}")
-    public String deleteTestCaseById(@PathVariable String id){
-        return testService.deleteTest(id);
+    public ResponseEntity<String> deleteTestCaseById(@PathVariable String id) {
+        return ResponseEntity.ok(testService.deleteTest(id));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<TestModel> updateTest(@PathVariable String id,
-                                                @RequestBody TestModel updatedTest) {
+    public ResponseEntity<TestCaseDTO> updateTest(@PathVariable String id,
+                                                  @RequestBody TestModel updatedTest) {
         return testService.updateTests(id, updatedTest)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
-
-
-
-
-
-
-
-
 }
